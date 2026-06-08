@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity 2 — Interpreting Listening Data</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1923;
+    --surface: #1a2535;
+    --surface2: #212f42;
+    --border: #2d3e55;
+    --text: #e8edf3;
+    --muted: #7a90a8;
+    --accent: #4fd1c5;
+    --accent-dark: #2ab5a8;
+    --amber: #f6ad55;
+    --rose: #f687b3;
+    --purple: #9f7aea;
+    --green: #68d391;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Source Sans 3', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+  }
+
+  /* HERO */
+  .hero {
+    padding: 72px 48px 64px;
+    position: relative;
+    overflow: hidden;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 70% 50%, rgba(79,209,197,0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 20% 80%, rgba(159,122,234,0.06) 0%, transparent 50%);
+  }
+  .hero-content { position: relative; max-width: 900px; margin: 0 auto; }
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(79,209,197,0.12);
+    border: 1px solid rgba(79,209,197,0.3);
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 5px 14px;
+    border-radius: 20px;
+    margin-bottom: 24px;
+  }
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(30px, 5vw, 50px);
+    line-height: 1.2;
+    margin-bottom: 16px;
+    max-width: 650px;
+  }
+  .hero h1 em { font-style: italic; color: var(--accent); }
+  .hero p { color: var(--muted); font-size: 16px; max-width: 560px; }
+
+  /* LAYOUT */
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 32px; }
+
+  /* SECTION */
+  .section { padding: 56px 0; border-bottom: 1px solid var(--border); }
+  .section:last-of-type { border-bottom: none; }
+
+  .label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  /* CARDS */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px 30px;
+    margin-bottom: 20px;
+  }
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 21px;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .card p, .card li { font-size: 15px; color: #b8c8d8; }
+  .card ul { padding-left: 18px; }
+  .card li { margin-bottom: 6px; }
+
+  /* PILLARS */
+  .pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 28px 0; }
+  .pillar {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .pillar .dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    margin-bottom: 12px;
+  }
+  .pillar h3 { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
+  .pillar p { font-size: 13.5px; color: var(--muted); }
+
+  /* SENTIMENT DISPLAY */
+  .sentiment-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 28px;
+    margin: 24px 0;
+  }
+  .sent-header { font-size: 13px; font-weight: 600; color: var(--muted); margin-bottom: 16px; }
+  .sent-bars { display: flex; flex-direction: column; gap: 12px; }
+  .sent-row { display: flex; align-items: center; gap: 12px; }
+  .sent-label { font-size: 13px; width: 70px; color: var(--text); }
+  .sent-bar-bg { flex: 1; background: var(--surface2); border-radius: 4px; height: 10px; overflow: hidden; }
+  .sent-bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; width: 0; }
+  .sent-pct { font-size: 13px; font-weight: 600; width: 42px; text-align: right; }
+  .positive .sent-bar-fill { background: var(--green); }
+  .positive .sent-pct { color: var(--green); }
+  .neutral .sent-bar-fill { background: var(--muted); }
+  .neutral .sent-pct { color: var(--muted); }
+  .negative .sent-bar-fill { background: var(--rose); }
+  .negative .sent-pct { color: var(--rose); }
+
+  .sent-warnings { margin-top: 20px; }
+  .warn-item {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+  }
+  .warn-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .warn-text { font-size: 14px; color: #b8c8d8; }
+  .warn-text strong { color: var(--amber); }
+
+  /* KEYWORD CLOUD */
+  .kw-cloud {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 20px 0;
+  }
+  .kw-tag {
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: default;
+    transition: transform 0.15s;
+  }
+  .kw-tag:hover { transform: scale(1.05); }
+  .kw-xl { font-size: 17px; padding: 8px 18px; }
+  .kw-l { font-size: 15px; }
+  .kw-m { font-size: 13px; }
+  .kw-s { font-size: 12px; opacity: 0.75; }
+
+  /* TABS */
+  .tabs { display: flex; gap: 4px; margin-bottom: 24px; border-bottom: 2px solid var(--border); }
+  .tab-btn {
+    padding: 10px 20px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: all 0.18s;
+  }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .tab-pane { display: none; }
+  .tab-pane.active { display: block; }
+
+  /* SOV CHART */
+  .sov-chart { margin: 20px 0; }
+  .sov-row { display: flex; align-items: center; gap: 14px; margin-bottom: 14px; }
+  .sov-name { font-size: 14px; width: 140px; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .sov-bar-bg { flex: 1; background: var(--surface2); border-radius: 4px; height: 14px; overflow: hidden; }
+  .sov-fill { height: 100%; border-radius: 4px; transition: width 1.2s ease; width: 0; }
+  .sov-val { font-size: 13px; font-weight: 600; width: 44px; text-align: right; }
+
+  /* DATA SNAPSHOT */
+  .snapshot {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px;
+    margin: 24px 0;
+  }
+  .snapshot-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 20px; }
+  .snap-metric { }
+  .snap-val { font-size: 28px; font-weight: 700; font-family: 'Playfair Display', serif; color: var(--accent); }
+  .snap-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+  .snap-note { font-size: 13px; color: #7a90a8; }
+
+  /* COMPARE */
+  .compare-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 16px;
+    align-items: center;
+    margin: 12px 0;
+  }
+  .compare-a, .compare-b {
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 14px;
+  }
+  .compare-a { background: rgba(79,209,197,0.08); border: 1px solid rgba(79,209,197,0.2); }
+  .compare-b { background: rgba(246,173,85,0.08); border: 1px solid rgba(246,173,85,0.2); text-align: right; }
+  .compare-vs { font-size: 12px; color: var(--muted); font-weight: 600; text-align: center; }
+  .compare-a strong { color: var(--accent); }
+  .compare-b strong { color: var(--amber); }
+
+  /* TASKS */
+  .task-header {
+    background: linear-gradient(135deg, rgba(79,209,197,0.1), rgba(159,122,234,0.08));
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 32px;
+    margin-bottom: 24px;
+  }
+  .task-header h2 { font-family: 'Playfair Display', serif; font-size: 24px; margin-bottom: 8px; }
+  .task-header p { color: var(--muted); font-size: 14.5px; }
+
+  .task-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .task-card .task-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+  .task-num {
+    background: var(--accent);
+    color: var(--bg);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700;
+    flex-shrink: 0;
+  }
+  .task-title { font-size: 15px; font-weight: 600; color: var(--text); }
+  .task-card p { font-size: 14.5px; color: #b8c8d8; margin-bottom: 14px; }
+
+  textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 16px;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 14.5px;
+    color: var(--text);
+    resize: vertical;
+    min-height: 100px;
+    transition: border-color 0.2s;
+  }
+  textarea:focus { outline: none; border-color: var(--accent); }
+  textarea::placeholder { color: var(--muted); }
+
+  .btn-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .btn {
+    padding: 9px 20px;
+    border-radius: 6px;
+    border: none;
+    font-family: 'Source Sans 3', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s;
+  }
+  .btn-accent { background: var(--accent); color: var(--bg); }
+  .btn-accent:hover { background: var(--accent-dark); }
+  .btn-outline { background: transparent; color: var(--accent); border: 1.5px solid var(--accent); }
+  .btn-outline:hover { background: rgba(79,209,197,0.08); }
+  .btn-ghost { background: transparent; color: var(--muted); border: 1.5px solid var(--border); }
+  .btn-ghost:hover { color: var(--text); }
+
+  .feedback {
+    display: none;
+    margin-top: 14px;
+    padding: 14px 18px;
+    border-radius: 6px;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .feedback.show { display: block; }
+  .feedback.good { background: rgba(104,211,145,0.1); border-left: 3px solid var(--green); color: #a0e6bc; }
+  .feedback.tip { background: rgba(246,173,85,0.1); border-left: 3px solid var(--amber); color: #f6d090; }
+
+  .model-answer {
+    display: none;
+    margin-top: 14px;
+    padding: 18px 22px;
+    background: rgba(159,122,234,0.08);
+    border: 1px solid rgba(159,122,234,0.25);
+    border-radius: 6px;
+  }
+  .model-answer.show { display: block; }
+  .model-answer .ma-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--purple); margin-bottom: 10px; }
+  .model-answer p { font-size: 14px; color: #c8b8e8; line-height: 1.7; }
+
+  /* PROGRESS */
+  .progress-bar {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin: 40px 0 0;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0;
+  }
+  .progress-label { font-size: 12px; color: var(--muted); margin-top: 6px; text-align: right; }
+
+  .completion {
+    display: none;
+    background: linear-gradient(135deg, var(--accent-dark), #1a7a6e);
+    border-radius: 10px;
+    padding: 48px;
+    text-align: center;
+    margin: 24px 0;
+    color: var(--bg);
+  }
+  .completion.show { display: block; }
+  .completion .icon { font-size: 44px; margin-bottom: 16px; }
+  .completion h3 { font-family: 'Playfair Display', serif; font-size: 28px; margin-bottom: 8px; }
+  .completion p { font-size: 15px; opacity: 0.85; }
+
+  .callout {
+    background: rgba(246,173,85,0.08);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: #f6d090;
+    margin: 18px 0;
+  }
+  .callout strong { color: var(--amber); }
+
+  @media (max-width: 600px) {
+    .hero { padding: 40px 24px; }
+    .wrap { padding: 0 20px; }
+    .pillars { grid-template-columns: 1fr; }
+    .snapshot-grid { grid-template-columns: 1fr 1fr; }
+    .compare-row { grid-template-columns: 1fr; }
+    .compare-vs { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <span class="badge">Week 4 · Activity 2 · MKTG1419</span>
+    <h1>Interpreting Social Media <em>Listening</em> Data</h1>
+    <p>Listening goes beyond your own posts. Understand what the broader public is saying — about your brand, your industry, and your competitors.</p>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- BACKGROUND: WHAT IS LISTENING -->
+  <section class="section">
+    <div class="label">Background — What Is Social Listening?</div>
+
+    <div class="card">
+      <h2>Monitoring vs. Listening — The Key Difference</h2>
+      <p>While monitoring tracks <em>what the brand posts</em>, listening captures <em>what the public says</em> — including people who have never followed or interacted with the brand. Listening draws from public conversations across social media, news sites, blogs, forums, and review platforms.</p>
+      <br>
+      <p>Listening answers the question: <strong>What do people think and feel about this brand, category, or topic — and why?</strong></p>
+    </div>
+
+    <div class="pillars">
+      <div class="pillar">
+        <div class="dot" style="background: var(--green)"></div>
+        <h3>Customer Insights</h3>
+        <p>What do sentiment patterns and keyword associations reveal about how customers perceive the brand?</p>
+      </div>
+      <div class="pillar">
+        <div class="dot" style="background: var(--amber)"></div>
+        <h3>Industry Insights</h3>
+        <p>What broader trends are shaping the category conversation? Is the brand aligned or missing a key topic?</p>
+      </div>
+      <div class="pillar">
+        <div class="dot" style="background: var(--rose)"></div>
+        <h3>Competitor Insights</h3>
+        <p>How does the brand's share of voice compare? What topics does each competitor dominate online?</p>
+      </div>
+    </div>
+
+    <div class="label" style="margin-top: 32px;">Key Listening Metrics</div>
+
+    <div class="card">
+      <h2>What Listening Tools Give You</h2>
+      <ul>
+        <li><strong>Mention Volume</strong> — total times the brand or keyword appears in public content. Must be contextualised by time period and industry scale.</li>
+        <li><strong>Mentions Over Time</strong> — a timeline showing spikes. Spikes often correspond to campaigns, news events, or public incidents.</li>
+        <li><strong>Sentiment Split</strong> — the proportion of positive, neutral, and negative mentions. Use AI-generated sentiment as a starting point — always manually verify samples.</li>
+        <li><strong>Share of Voice (SoV)</strong> — your brand's proportion of total category mentions versus competitors. Reflects conversation dominance, not market share.</li>
+        <li><strong>Keyword/Topic Clusters</strong> — recurring themes and associations in the conversation around your brand or category.</li>
+      </ul>
+    </div>
+
+    <div class="callout">
+      <strong>Important:</strong> AI-powered sentiment tools frequently misclassify sarcasm, mixed emotions, and language nuance. Always review a sample of raw mentions before drawing conclusions from a sentiment score.
+    </div>
+  </section>
+
+  <!-- SCENARIO DATA -->
+  <section class="section">
+    <div class="label">Scenario — Brand Lumio · Skincare · Vietnam Market</div>
+    <p style="font-size:15px; color:var(--muted); margin-bottom:24px;">Brand Lumio is a mid-range Vietnamese skincare brand. The following data was captured over a four-week listening window using a social listening tool. Use this data for all three tasks below.</p>
+
+    <!-- Tabs for different data views -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('customer')">Customer Insights</button>
+      <button class="tab-btn" onclick="switchTab('industry')">Industry Insights</button>
+      <button class="tab-btn" onclick="switchTab('competitor')">Competitor Insights</button>
+    </div>
+
+    <!-- CUSTOMER TAB -->
+    <div class="tab-pane active" id="tab-customer">
+      <div class="snapshot">
+        <div class="snapshot-grid">
+          <div class="snap-metric">
+            <div class="snap-val">3,840</div>
+            <div class="snap-label">Total Mentions</div>
+            <div class="snap-note">4-week window</div>
+          </div>
+          <div class="snap-metric">
+            <div class="snap-val">1.2M</div>
+            <div class="snap-label">Estimated Reach</div>
+            <div class="snap-note">Unique accounts potentially exposed</div>
+          </div>
+        </div>
+        <div class="sent-header">Sentiment Split</div>
+        <div class="sent-bars">
+          <div class="sent-row positive">
+            <div class="sent-label">Positive</div>
+            <div class="sent-bar-bg"><div class="sent-bar-fill" data-pct="58" style="width:0%"></div></div>
+            <div class="sent-pct">58%</div>
+          </div>
+          <div class="sent-row neutral">
+            <div class="sent-label">Neutral</div>
+            <div class="sent-bar-bg"><div class="sent-bar-fill" data-pct="24" style="width:0%"></div></div>
+            <div class="sent-pct">24%</div>
+          </div>
+          <div class="sent-row negative">
+            <div class="sent-label">Negative</div>
+            <div class="sent-bar-bg"><div class="sent-bar-fill" data-pct="18" style="width:0%"></div></div>
+            <div class="sent-pct">18%</div>
+          </div>
+        </div>
+        <div class="sent-warnings">
+          <div class="warn-item"><div class="warn-icon">🟢</div><div class="warn-text"><strong>Top positive theme:</strong> "Dưỡng ẩm tốt" (good moisturising), "da mềm mịn" (soft skin), "thiên nhiên" (natural). Positive mentions cluster around product efficacy and clean ingredient positioning.</div></div>
+          <div class="warn-item"><div class="warn-icon">🔴</div><div class="warn-text"><strong>Top negative theme:</strong> Price-to-size ratio — recurring complaints that packaging is too small relative to cost. Secondary: shipping delays from third-party sellers.</div></div>
+        </div>
+      </div>
+
+      <p style="font-size:14px;color:var(--muted);margin-top:8px;">Keyword associations most frequently co-occurring with Brand Lumio:</p>
+      <div class="kw-cloud">
+        <span class="kw-tag kw-xl" style="background:rgba(104,211,145,0.12);color:var(--green);border:1px solid rgba(104,211,145,0.3)">dưỡng ẩm</span>
+        <span class="kw-tag kw-xl" style="background:rgba(104,211,145,0.12);color:var(--green);border:1px solid rgba(104,211,145,0.3)">thiên nhiên</span>
+        <span class="kw-tag kw-l" style="background:rgba(79,209,197,0.1);color:var(--accent);border:1px solid rgba(79,209,197,0.25)">da mềm mịn</span>
+        <span class="kw-tag kw-l" style="background:rgba(79,209,197,0.1);color:var(--accent);border:1px solid rgba(79,209,197,0.25)">lành tính</span>
+        <span class="kw-tag kw-m" style="background:rgba(246,173,85,0.1);color:var(--amber);border:1px solid rgba(246,173,85,0.25)">giá hơi cao</span>
+        <span class="kw-tag kw-m" style="background:rgba(246,173,85,0.1);color:var(--amber);border:1px solid rgba(246,173,85,0.25)">review</span>
+        <span class="kw-tag kw-m" style="background:rgba(246,173,85,0.1);color:var(--amber);border:1px solid rgba(246,173,85,0.25)">skincare Việt</span>
+        <span class="kw-tag kw-s" style="background:rgba(246,109,179,0.08);color:var(--rose);border:1px solid rgba(246,109,179,0.2)">đóng gói nhỏ</span>
+        <span class="kw-tag kw-s" style="background:rgba(246,109,179,0.08);color:var(--rose);border:1px solid rgba(246,109,179,0.2)">giao chậm</span>
+        <span class="kw-tag kw-s" style="background:rgba(159,122,234,0.1);color:var(--purple);border:1px solid rgba(159,122,234,0.25)">độ tuổi 20</span>
+      </div>
+      <p style="font-size:12px;color:var(--muted);">Tag size = relative mention frequency. Green = positive, Amber = neutral/mixed, Red = negative, Purple = demographic signals.</p>
+    </div>
+
+    <!-- INDUSTRY TAB -->
+    <div class="tab-pane" id="tab-industry">
+      <div class="snapshot">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Industry keyword tracked: <strong style="color:var(--accent)">"skincare Việt"</strong> — filtered to Vietnam, Vietnamese language</p>
+        <div class="snapshot-grid">
+          <div class="snap-metric">
+            <div class="snap-val">18,200</div>
+            <div class="snap-label">Category Mentions</div>
+            <div class="snap-note">Vietnamese skincare category</div>
+          </div>
+          <div class="snap-metric">
+            <div class="snap-val">↑ 34%</div>
+            <div class="snap-label">MoM Volume Growth</div>
+            <div class="snap-note">vs. previous 4-week window</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:20px;">
+        <h2>Top Industry Themes in the Listening Data</h2>
+        <ul>
+          <li><strong>"Clean beauty" & natural ingredients</strong> — the single most frequent theme; consumers increasingly scrutinise ingredient lists and favour brands with plant-based formulations</li>
+          <li><strong>Skin barrier health</strong> — mentions of "da nhạy cảm" (sensitive skin) and barrier repair products are rising sharply in Q1 2025</li>
+          <li><strong>Sustainable packaging</strong> — conversations about plastic waste and refillable formats are emerging, though still a minority of category mentions</li>
+          <li><strong>Influencer trust</strong> — dermatologist-reviewed or "skincare expert" endorsed products generate disproportionate engagement, suggesting a credibility premium in the category</li>
+        </ul>
+      </div>
+
+      <div class="callout">
+        <strong>Gap identified:</strong> "Sustainable packaging" appears in 9% of category conversations but is absent from Brand Lumio's content. This represents a potential positioning opportunity — or a risk of being seen as lagging behind.
+      </div>
+    </div>
+
+    <!-- COMPETITOR TAB -->
+    <div class="tab-pane" id="tab-competitor">
+      <div class="snapshot">
+        <p style="font-size:14px;color:var(--muted);margin-bottom:16px;">Share of Voice — Vietnamese clean skincare category, 4-week window</p>
+        <div class="sov-chart">
+          <div class="sov-row">
+            <div class="sov-name">Brand Lumio</div>
+            <div class="sov-bar-bg"><div class="sov-fill" data-pct="42" style="background:var(--accent);"></div></div>
+            <div class="sov-val" style="color:var(--accent)">42%</div>
+          </div>
+          <div class="sov-row">
+            <div class="sov-name">Competitor A (Noni)</div>
+            <div class="sov-bar-bg"><div class="sov-fill" data-pct="31" style="background:var(--amber);"></div></div>
+            <div class="sov-val" style="color:var(--amber)">31%</div>
+          </div>
+          <div class="sov-row">
+            <div class="sov-name">Competitor B (Hanu)</div>
+            <div class="sov-bar-bg"><div class="sov-fill" data-pct="17" style="background:var(--purple);"></div></div>
+            <div class="sov-val" style="color:var(--purple)">17%</div>
+          </div>
+          <div class="sov-row">
+            <div class="sov-name">Others</div>
+            <div class="sov-bar-bg"><div class="sov-fill" data-pct="10" style="background:var(--muted);"></div></div>
+            <div class="sov-val" style="color:var(--muted)">10%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="compare-row" style="margin-top:20px;">
+        <div class="compare-a"><strong>Lumio (42%)</strong><br><span style="font-size:13px;color:var(--muted)">Dominates "natural" & "moisturising" keywords. Strong positive sentiment. Weakness: price perception.</span></div>
+        <div class="compare-vs">VS</div>
+        <div class="compare-b"><strong>Noni (31%)</strong><br><span style="font-size:13px;color:var(--muted)">Leads on "skin barrier" and "dermatologist" keywords. Growing rapidly — up 22% MoM. Smaller but faster.</span></div>
+      </div>
+
+      <div class="card" style="margin-top:16px;">
+        <h2>What This Means</h2>
+        <p>Brand Lumio leads share of voice, but Noni's 22% month-on-month growth and dominance of the "skin barrier" and "dermatologist" keyword clusters signal an emerging credibility challenge. If Lumio does not build a clinical/expert positioning in its content, Noni may erode its advantage in the coming quarter — particularly among the 20–29 demographic where trust signals are decisive in purchase intent.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TASKS -->
+  <section class="section">
+    <div class="task-header">
+      <h2>Your Tasks</h2>
+      <p>Use the Brand Lumio data above (all three tabs) to complete each writing task. Each response should follow the Observation → Analysis → Insight framework and include a cited source.</p>
+    </div>
+
+    <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="progress-label" id="progressLabel">0 of 3 tasks submitted</div>
+
+    <!-- Task 1 -->
+    <div class="task-card" style="margin-top:24px;">
+      <div class="task-meta">
+        <div class="task-num">1</div>
+        <div class="task-title">Customer Insight — Sentiment Interpretation</div>
+      </div>
+      <p>Using the sentiment data and keyword associations, write a 4–5 sentence customer insight paragraph. Identify one positive theme and one negative theme. Explain what each reveals about how customers perceive Brand Lumio — and support your analysis with an academic or industry source. What does this mean for the brand?</p>
+      <textarea id="t1" placeholder="Brand Lumio's listening data reveals... The dominant positive sentiment around 'thiên nhiên' suggests... However, recurring negative mentions about... This indicates..." rows="5"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-accent" onclick="checkTask(1)">Submit</button>
+        <button class="btn btn-outline" onclick="toggleModel(1)">Model Answer</button>
+        <button class="btn btn-ghost" onclick="clearTask(1)">Clear</button>
+      </div>
+      <div class="feedback" id="t1-fb"></div>
+      <div class="model-answer" id="t1-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Brand Lumio's listening data reveals a broadly favourable customer sentiment, with 58% of mentions classified as positive over the four-week window. The clustering of keywords such as "thiên nhiên" (natural) and "dưỡng ẩm" (moisturising) <em>suggests</em> that the brand's clean ingredient positioning is resonating with its audience — consistent with research indicating that perceived naturalness is a primary driver of purchase intention and loyalty in the Vietnamese personal care category (Nielsen Vietnam, 2024). However, a recurring negative theme — the price-to-size ratio — <em>reveals</em> a perception gap between the brand's premium packaging aspiration and its audience's value expectations. This tension <em>indicates</em> that Lumio may need to either revise its packaging sizing strategy or strengthen its communication of premium ingredient quality to justify the price point and reduce the risk of negative word-of-mouth amplified through social channels.</p>
+      </div>
+    </div>
+
+    <!-- Task 2 -->
+    <div class="task-card">
+      <div class="task-meta">
+        <div class="task-num">2</div>
+        <div class="task-title">Industry Insight — Trend Identification</div>
+      </div>
+      <p>Using the Industry Insights tab data, write a 4–5 sentence industry insight paragraph. Identify one significant trend from the category conversation. Explain whether Brand Lumio is currently positioned to benefit from or is missing this trend — and what the brand should consider. Cite a source.</p>
+      <textarea id="t2" placeholder="Analysis of the Vietnamese skincare category conversation reveals... The rapid growth in mentions of 'skin barrier health' indicates... Brand Lumio's current content does not... This suggests the brand should consider..." rows="5"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-accent" onclick="checkTask(2)">Submit</button>
+        <button class="btn btn-outline" onclick="toggleModel(2)">Model Answer</button>
+        <button class="btn btn-ghost" onclick="clearTask(2)">Clear</button>
+      </div>
+      <div class="feedback" id="t2-fb"></div>
+      <div class="model-answer" id="t2-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Category listening data for "skincare Việt" <em>reveals</em> a 34% month-on-month increase in total mentions, with "clean beauty" and natural ingredient transparency emerging as the dominant conversation themes. This trend <em>indicates</em> a structural shift in Vietnamese consumer values toward ingredient literacy and brand accountability — consistent with Decision Lab's (2024) findings that Gen Z consumers in Vietnam are increasingly scrutinising formulation claims before purchase. While Brand Lumio's current keyword associations suggest it is partially aligned with this trend through its "thiên nhiên" positioning, the brand is absent from the emerging "sustainable packaging" conversation — a topic that represents 9% of category mentions but zero share of Lumio's content output. This gap <em>suggests</em> that proactively communicating packaging sustainability commitments could both strengthen brand legitimacy and pre-empt a potential reputational risk as consumer expectations escalate across the category.</p>
+      </div>
+    </div>
+
+    <!-- Task 3 -->
+    <div class="task-card">
+      <div class="task-meta">
+        <div class="task-num">3</div>
+        <div class="task-title">Competitor Insight — Share of Voice Analysis</div>
+      </div>
+      <p>Using the Competitor Insights tab, write a 4–5 sentence competitor insight paragraph. Compare Brand Lumio's Share of Voice to Competitor A (Noni). What does the data reveal about each brand's positioning in the online conversation? What is the strategic implication for Lumio? Cite a source.</p>
+      <textarea id="t3" placeholder="Share of Voice data from the listening tool indicates that Brand Lumio leads the category with 42%... However, Competitor A (Noni) shows... The keyword gap around 'dermatologist' suggests... This reveals that Lumio risks..." rows="5"></textarea>
+      <div class="btn-row">
+        <button class="btn btn-accent" onclick="checkTask(3)">Submit</button>
+        <button class="btn btn-outline" onclick="toggleModel(3)">Model Answer</button>
+        <button class="btn btn-ghost" onclick="clearTask(3)">Clear</button>
+      </div>
+      <div class="feedback" id="t3-fb"></div>
+      <div class="model-answer" id="t3-model">
+        <div class="ma-label">Model Answer</div>
+        <p>Share of Voice data <em>indicates</em> that Brand Lumio currently leads the Vietnamese clean skincare category with 42% of total mentions, compared to Competitor A (Noni) at 31% — giving Lumio a meaningful conversation advantage in the short term. However, Noni's 22% month-on-month growth rate and its dominance of the "skin barrier" and "dermatologist" keyword clusters <em>reveals</em> a strategically significant positioning gap: while Lumio leads on volume, Noni is winning on the credibility-linked language that drives conversion in higher-involvement product categories (Tuten & Solomon, 2023). This pattern <em>suggests</em> that share of voice volume alone is insufficient as a performance indicator — the thematic content of those mentions matters equally, as brands that own expert-aligned keywords tend to attract higher-trust consumer segments. For Brand Lumio, the strategic implication is clear: without investment in clinical validation or expert-endorsed content, Noni's momentum may convert into a market share advantage among the 20–29 consumer segment where decision-making is most influenced by peer and authority signals.</p>
+      </div>
+    </div>
+
+    <div class="completion" id="completion">
+      <div class="icon">◎</div>
+      <h3>Activity Complete!</h3>
+      <p>You've practised interpreting all three dimensions of social listening data — customer, industry, and competitor. Review the model answers: did your paragraphs include a clear insight, not just analysis?</p>
+    </div>
+  </section>
+</div>
+
+<script>
+  // Tabs
+  function switchTab(id) {
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + id).classList.add('active');
+    event.target.classList.add('active');
+    initBars();
+  }
+
+  // Animate bars on load
+  function initBars() {
+    document.querySelectorAll('.sent-bar-fill, .sov-fill').forEach(el => {
+      const pct = el.dataset.pct;
+      if (pct) setTimeout(() => el.style.width = pct + '%', 100);
+    });
+  }
+  window.addEventListener('load', initBars);
+
+  const submitted = [false, false, false];
+
+  function checkTask(n) {
+    const val = document.getElementById(`t${n}`).value.trim();
+    const fb = document.getElementById(`t${n}-fb`);
+    if (!val || val.length < 60) {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = 'Your response is too brief. Aim for 4–5 complete sentences with a cited source and clear insight.';
+      return;
+    }
+    const lower = val.toLowerCase();
+    const hasInsight = lower.includes('suggest') || lower.includes('indicat') || lower.includes('reveal') || lower.includes('imply') || lower.includes('therefore') || lower.includes('mean') || lower.includes('thus');
+    const hasCite = lower.includes('2024') || lower.includes('2025') || lower.includes('2023') || lower.includes('et al') || lower.includes('research') || lower.includes('according') || lower.includes('report') || lower.includes('study');
+
+    if (hasInsight && hasCite) {
+      fb.className = 'feedback good show';
+      fb.innerHTML = '<strong>Well done!</strong> Your response uses analytical language and references external support. Compare with the model answer — did you connect the insight back to a strategic implication for the brand?';
+    } else if (!hasInsight) {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = '<strong>Push further:</strong> Your response describes the data but stops short of an insight. Ask yourself "so what does this mean for the brand?" and use language like "suggests," "reveals," or "indicates."';
+    } else {
+      fb.className = 'feedback tip show';
+      fb.innerHTML = '<strong>Strengthen this:</strong> Good analytical direction, but include a cited source (academic journal, industry report) to support your interpretation.';
+    }
+
+    if (!submitted[n-1]) { submitted[n-1] = true; updateProgress(); }
+  }
+
+  function toggleModel(n) {
+    document.getElementById(`t${n}-model`).classList.toggle('show');
+  }
+
+  function clearTask(n) {
+    document.getElementById(`t${n}`).value = '';
+    document.getElementById(`t${n}-fb`).className = 'feedback';
+    document.getElementById(`t${n}-model`).className = 'model-answer';
+  }
+
+  function updateProgress() {
+    const count = submitted.filter(Boolean).length;
+    document.getElementById('progressFill').style.width = (count/3*100) + '%';
+    document.getElementById('progressLabel').textContent = `${count} of 3 tasks submitted`;
+    if (count === 3) document.getElementById('completion').classList.add('show');
+  }
+</script>
+</body>
+</html>
